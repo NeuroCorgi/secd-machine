@@ -1,0 +1,1 @@
+target_sources(secd PRIVATE registers.cpp machine.cpp opcode.cpp value.cpp)
