@@ -53,13 +53,13 @@ OPCODE_HANDLER(AP) {
 
     auto dump_frame = decltype(state.dump)::value_type(stack, state.env, state.control);
 
-    auto control = std::get<std::string>(*state.attributes[closure.control_index]);
+    auto& control = std::get<std::string>(*state.attributes[closure.control_index]);
 
-    // Check if closure being called is a built-in function
-    if (std::strncmp(control.c_str(), "print", control.capacity() - 1)) {
+    // // Check if closure being called is a built-in function
+    // if (std::strncmp(control.c_str(), "print", control.capacity() - 1)) {
         
-        return;
-    }
+    //     return;
+    // }
 
     state.stack   = registers::stack{};
     state.env     = env;
