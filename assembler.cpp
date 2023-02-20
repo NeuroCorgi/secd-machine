@@ -16,7 +16,10 @@ struct instruction {
     secd::opcodes::OpCode opcode{secd::opcodes::NON};
     secd::value::operands_list operands;
 };
-using block = std::vector<instruction>;
+struct block {
+    std::string label;
+    std::vector<instruction> instructions;
+};
 
 struct attribute {
     uint16_t length;
@@ -66,7 +69,7 @@ struct attribute {
 
         std::ostringstream oss;
 
-        for (const auto& ins : block) {
+        for (const auto& ins : block.instructions) {
             oss.write(reinterpret_cast<const char *>(&(ins.opcode)), sizeof(uint8_t));
             for (const auto& op : ins.operands) {
                 oss.write(reinterpret_cast<const char *>(&op), sizeof(uint16_t));
@@ -236,28 +239,29 @@ std::istream& operator>>(std::istream& is, instruction& i) {
     return is;
 }
 
-std::istream& operator>>(std::istream& is, block&) {
-    block block{};
+std::istream& operator>>(std::istream& is, block& block) {
     std::string label;
     is >> label;
     if (!label.ends_with(':')) {
         throw std::runtime_error("Label expected, got " + label);
     }
-    auto pure_label = label.substr(0, label.length() - 1); // Label without colon at the end
-    std::cout << "Pure Label: " << pure_label << "\n";
+    label = label.substr(0, label.length() - 1); // Label without colon at the end
+    std::cout << "Pure Label: " << label << "\n";
+    block.label = label;
+    block.instructions = {};
 
-    instruction ins;
-    do {
-        is >> ins;
-        block.push_back(ins);
-    } while (ins.opcode != secd::opcodes::STP);
+    for (auto iter = std::istream_iterator<instruction>(is); iter->opcode != secd::opcodes::STP; iter++) {
+        block.instructions.push_back(*iter);
+    }
+    block.instructions.push_back(instruction{secd::opcodes::STP, {}});
 
-    auto block_index = attributes.index<attribute::Code>(pure_label);
+    auto block_index = attributes.index<attribute::Code>(label);
     std::cout << "index: " << block_index << "\n";
     attributes[block_index].set<attribute::Code>(block);
     std::cout << "length: " << attributes[block_index].length << "\n\n";
 
-    for (const auto& ins : block) {
+    
+    for (const auto& ins : block.instructions) {
         std::cout << "OPCODE: " << secd::opcodes::opcode_name(ins.opcode) << " "
                   << ins.operands.size() << "\n";
     }
@@ -288,41 +292,21 @@ void write_attributes(std::ofstream& ofs) {
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 2) {
-        std::cerr << "Program should be run with only one argument: the function file name.\n";
-        std::cerr << (argc - 1) << " was provided.\n";
+    if (argc != 3) {
+        std::cerr << "usage: " << argv[0] << " <input-file> <output-file>\n";
         return 1;
     }
 
     std::ifstream ifs{argv[1]};
 
-    block b;
-    ifs >> b;
-    ifs >> b;
-    ifs >> b;
-    ifs >> b;
+    // Main should always be the last code block
+    for (
+        auto iter = std::istream_iterator<block>(ifs);
+        iter->label != "main";
+        iter++
+    );
 
-    std::ofstream ofs{"aaa.func"};
-    std::cout << "\n";
-
-    for (const auto& at : attributes) {
-        std::cout << at.length << " ";
-        switch (at.tag) {
-        case attribute::Int:
-            std::cout << "int";
-            break;
-        case attribute::Id:
-            std::cout << "id";
-            break;
-        case attribute::Operands:
-            std::cout << "ops";
-            break;
-        case attribute::Code:
-            std::cout << "code";
-            break;
-        }
-        std::cout << "\n";
-    }
+    std::ofstream ofs{argv[2]};
 
     write_magic(ofs);
     write_attributes(ofs);
