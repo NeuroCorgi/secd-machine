@@ -1,3 +1,7 @@
+.cache
 .vscode
 .idea
+.DS_Store
 build
+
+*.zip
