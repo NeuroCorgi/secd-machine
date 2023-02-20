@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-#include <iostream>
 
 namespace secd::opcodes {
 

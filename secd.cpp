@@ -1,7 +1,7 @@
-#include <iostream>
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <iterator>
+#include <string>
 
 #include "machine.h"
 

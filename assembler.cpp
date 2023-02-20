@@ -1,17 +1,10 @@
-#include <_types/_uint16_t.h>
-#include <algorithm>
-#include <cmath>
-#include <cstddef>
-#include <cstring>
 #include <iostream>
 #include <fstream>
-#include <iterator>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <optional>
 #include <unordered_map>
 
 #include "machine.h"

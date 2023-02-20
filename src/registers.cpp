@@ -1,6 +1,5 @@
 #include "registers.h"
 
-#include <iostream>
 
 namespace secd::registers {
 
