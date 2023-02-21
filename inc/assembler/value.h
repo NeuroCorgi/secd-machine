@@ -110,7 +110,7 @@ struct attribute {
 
 }
 
-// The architecture of this project is complitely broken
+// The architecture of this project is completely broken
 // Or is it how it really should work?
 #include "assembler/util.h"
 
