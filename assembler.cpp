@@ -2,11 +2,15 @@
 #include <fstream>
 
 #include "vm/value.h"
+#include "assembler/file.h"
+#include "assembler/attribute.h"
 #include "assembler/value.h"
 
 secd::assembler::value::attribute_list attributes;
 
-std::istream& operator>>(std::istream& is, secd::value::operands_list& ops) {
+void read_operands(std::istream& is, secd::value::operands_list& ops) {
+    ops.clear();
+    
     char paren;
     is >> paren;
     if (paren != '(') {
@@ -24,11 +28,9 @@ std::istream& operator>>(std::istream& is, secd::value::operands_list& ops) {
         auto sub = rand.substr(0, rand.length() - 1);
         ops.push_back(attributes.index<secd::assembler::value::attribute::Id>(sub));
     }
-
-    return is;
 }
 
-std::istream& operator>>(std::istream& is, secd::assembler::value::instruction& ins) {
+std::istream& secd::assembler::value::operator>>(std::istream& is, secd::assembler::value::instruction& ins) {
     using namespace secd::assembler::value;
     
     std::string name;
@@ -70,11 +72,13 @@ std::istream& operator>>(std::istream& is, secd::assembler::value::instruction& 
     }
     case secd::opcodes::LDF: {
         std::string body;
-        secd::value::operands_list ops;
-        is >> body >> ops;
+        std::vector<uint16_t> ops;
+        is >> body;
+        read_operands(is, ops);
 
         auto body_index = attributes.index<attribute::Code>(body);
 
+        // TODO: remove "ops", it is impossible to have several functions now
         auto operands_index = attributes.index<attribute::Operands>("ops");
         attributes[operands_index].set<attribute::Operands>(ops);
 
@@ -87,7 +91,7 @@ std::istream& operator>>(std::istream& is, secd::assembler::value::instruction& 
     return is;
 }
 
-std::istream& operator>>(std::istream& is, secd::assembler::value::block& block) {
+std::istream& secd::assembler::value::operator>>(std::istream& is, secd::assembler::value::block& block) {
     using namespace secd::assembler::value;
     
     std::string label;

@@ -3,11 +3,9 @@
 
 #include "common.h"
 
-#include "assembler/value.h"
+#include "assembler/attribute.h"
 
 namespace secd::assembler::util {
-
-using namespace secd::assembler;
 
 template<secd::assembler::value::attribute::Tag>
 std::string mangle(std::string& name);
