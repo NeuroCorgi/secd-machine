@@ -1,4 +1,4 @@
-#include "value.h"
+#include "vm/value.h"
 
 std::string secd::value::attribute_name(const attribute& attribute) {
     const char *names[] = {

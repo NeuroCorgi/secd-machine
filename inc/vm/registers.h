@@ -8,8 +8,8 @@
 
 #include "common.h"
 
-#include "opcode.h"
-#include "value.h"
+#include "vm/opcode.h"
+#include "vm/value.h"
 
 namespace secd::registers {
 
@@ -26,7 +26,7 @@ public:
 
     uint16_t read_operand();
 
-//private:
+private:
     void read(char * str, std::size_t count);
 
     const char* _buffer {nullptr};

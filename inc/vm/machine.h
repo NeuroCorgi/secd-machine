@@ -3,9 +3,9 @@
 
 #include "common.h"
 
-#include "value.h"
-#include "opcode.h"
-#include "registers.h"
+#include "vm/value.h"
+#include "vm/opcode.h"
+#include "vm/registers.h"
 
 namespace secd {
 

@@ -3,14 +3,13 @@
 
 #include "common.h"
 
-
 namespace secd::opcodes {
 
 /*
  * SECD machine opcodes
  * name, binary representation, number of arguments fron attribute list
  * 
- * Idea taken fron Webassembly source code
+ * Idea taken fron WebAssembly source code
  */
 
 #define SECD_BINARY_OPCODE(V)      \

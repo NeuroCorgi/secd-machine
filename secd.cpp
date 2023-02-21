@@ -3,11 +3,11 @@
 #include <iterator>
 #include <string>
 
-#include "machine.h"
+#include "vm/machine.h"
 
-#include "opcode.h"
-#include "registers.h"
-#include "value.h"
+#include "vm/opcode.h"
+#include "vm/registers.h"
+#include "vm/value.h"
 
 bool check_magic(std::ifstream& ifs) {
     uint32_t magic;
@@ -23,12 +23,12 @@ uint16_t read_attributes_length(std::ifstream& ifs) {
 
 secd::value::attribute read_attribute(std::ifstream& ifs) {
     uint16_t length = 0;
-    uint8_t  tag    = 0;
-    ifs.read(reinterpret_cast<char *>(&length), sizeof(uint16_t));
-    ifs.read(reinterpret_cast<char *>(&tag), sizeof(uint8_t));
+    uint8_t tag = 0;
+    ifs.read(reinterpret_cast<char *>(&length), sizeof(uint16_t))
+       .read(reinterpret_cast<char *>(&tag), sizeof(uint8_t));
 
     switch (tag) {
-    case 0x11: { // Integer 
+    case 0x11: { // Integer
         int x;
         ifs.read(reinterpret_cast<char *>(&x), length - 1);
         return x;
@@ -43,7 +43,8 @@ secd::value::attribute read_attribute(std::ifstream& ifs) {
     case 0x33: { // Code
         char* d = new char[length];
         ifs.read(d, length - 1);
-        std::string x; x.reserve(length);
+        std::string x;
+        x.reserve(length);
         std::memcpy(x.data(), d, length - 1);
         delete[] d;
         return x;
@@ -62,10 +63,11 @@ secd::value::attribute read_attribute(std::ifstream& ifs) {
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
    if (argc != 2) {
-       std::cerr << "Program should be run with only one argument: the function file name.\n";
+       std::cerr << "Program should be run with only one argument: the function "
+           "file name.\n";
        std::cerr << (argc - 1) << " was provided.\n";
        return 1;
    }
@@ -81,14 +83,15 @@ int main(int argc, char* argv[]) {
     secd::value::attribute_list attributes{length};
 
     for (auto i = 0; i < length; ++i) {
-        attributes[i] = std::make_shared<secd::value::attribute>(read_attribute(ifs));
+        attributes[i] =
+            std::make_shared<secd::value::attribute>(read_attribute(ifs));
     }
 
     secd::state state{attributes};
 
     try {
         secd::run(state);
-    } catch (std::exception& e) {
+    } catch (std::exception &e) {
         std::cerr << e.what() << "\n";
         return 1;
     }

@@ -1,4 +1,4 @@
-#include "registers.h"
+#include "vm/registers.h"
 
 
 namespace secd::registers {

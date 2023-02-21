@@ -1,4 +1,4 @@
-#include "machine.h"
+#include "vm/machine.h"
 
 #include <iostream>
 
@@ -14,7 +14,7 @@ state::state(value::attribute_list& attributes) : attributes{attributes} {
     control = registers::control{std::get<std::string>(bytecode)};
 }
 
-#define OPCODE_HANDLER(name) void run_##name(state& state, std::vector<uint16_t>& indices)
+#define OPCODE_HANDLER(name) void run_##name(state& state, value::operands_list& indices)
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
 OPCODE_HANDLER(NON) {
@@ -26,12 +26,11 @@ OPCODE_HANDLER(AP) {
     UNUSED(indices);
     auto& stack = state.stack;
 
-    if (stack.size() < 1) {
+    if (stack.empty()) {
         throw std::runtime_error("Ap : Expected a closure on top of the stack : Nothing found");
     }
 
     auto val = *stack.top(); stack.pop();
-    // I prefer to look before I leap
     if (val.index() != value::attribute_type::Closure) {
         throw std::runtime_error("Ap : Expected a closure on top of the stack : " + value::attribute_name(val) + " found");
     }
@@ -160,8 +159,6 @@ OPCODE_HANDLER(SEL) {
         throw std::runtime_error("SEL : Branch index is out of range");
     }
 
-    // std::cout << "SEL : " << branch << "\n";
-
     auto dump_frame = decltype(state.dump)::value_type(state.stack, state.env, state.control);
 
     auto val = *state.attributes[branch];
@@ -234,6 +231,7 @@ void run(state& state) {
         for (int i = 0; i < opcodes::reference_number(code); ++i) {
             operand_indices.push_back(state.control.read_operand());
         }
+
 
         switch (code) {
         #define CALL_OPCODE(name, ...) case opcodes::name: run_##name(state, operand_indices); break;
